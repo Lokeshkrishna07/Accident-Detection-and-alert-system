@@ -1,0 +1,355 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accident Detection</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-black min-h-screen flex items-center justify-center text-white p-6">
+  <div class="bg-white/5 p-8 rounded-2xl shadow-xl w-full max-w-xl text-center">
+    <h1 class="text-3xl font-bold mb-4">🚨 Accident Detection Upload</h1>
+    <p class="mb-6 text-gray-400">Upload a video to detect accidents using AI</p>
+
+    <label for="videoUpload" class="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-500 rounded-xl cursor-pointer hover:border-white transition">
+      <input id="videoUpload" type="file" accept="video/*" class="hidden">
+      <div id="videoPreview" class="text-gray-400">
+        <svg class="w-10 h-10 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-4m0 0V8m0 4H8m4 0h4M4.75 5.75A2.25 2.25 0 017 3.5h10a2.25 2.25 0 012.25 2.25v13.5A2.25 2.25 0 0117 21.5H7a2.25 2.25 0 01-2.25-2.25V5.75z"></path></svg>
+        <span>Click to upload video</span>
+      </div>
+    </label>
+
+    <button id="uploadButton" disabled class="mt-6 px-6 py-3 bg-blue-600 hover:bg-blue-700 transition rounded-xl text-white font-semibold disabled:opacity-50">Detect Accident</button>
+
+    <div id="resultContainer" class="mt-6 text-left bg-white/10 p-4 rounded-xl hidden">
+      <h2 class="font-semibold text-lg mb-2">📝 Result</h2>
+      <p id="totalFrames"></p>
+      <p id="accidentFrames" class="mt-1"></p>
+    </div>
+     Image gallery for frames 
+  <div id="frameGallery" class="grid grid-cols-2 gap-4 mt-4"></div>
+  </div>
+
+   <script>
+    const videoInput = document.getElementById('videoUpload');
+    const uploadButton = document.getElementById('uploadButton');
+    const videoPreview = document.getElementById('videoPreview');
+    const resultContainer = document.getElementById('resultContainer');
+    const totalFrames = document.getElementById('totalFrames');
+    const accidentFrames = document.getElementById('accidentFrames');
+
+    videoInput.addEventListener('change', () => {
+      const file = videoInput.files[0];
+      if (file) {
+        videoPreview.innerHTML = `<span class='text-green-400'>${file.name}</span>`;
+        uploadButton.disabled = false;
+      }
+    });
+
+    uploadButton.addEventListener('click', async () => {
+      const file = videoInput.files[0];
+      if (!file) return;
+      uploadButton.disabled = true;
+      uploadButton.textContent = 'Uploading...';
+
+      const formData = new FormData();
+      formData.append('video', file);
+
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/upload/', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        totalFrames.textContent = `Total Frames: ${data.total_frames}`;
+        accidentFrames.textContent = `Accidents Detected At: ${data.accident_detected_frames.join(', ') || 'None'}`;
+        resultContainer.classList.remove('hidden');
+      } catch (error) {
+        alert('Upload failed.');
+        console.error(error);
+      } finally {
+        uploadButton.disabled = false;
+        uploadButton.textContent = 'Detect Accident';
+      }
+    });
+  </script> -->
+  <!-- <script>
+    const videoInput = document.getElementById('videoUpload');
+    const uploadButton = document.getElementById('uploadButton');
+    const videoPreview = document.getElementById('videoPreview');
+    const resultContainer = document.getElementById('resultContainer');
+    const totalFrames = document.getElementById('totalFrames');
+    const accidentFrames = document.getElementById('accidentFrames');
+  
+    const progressContainer = document.createElement('div');
+    progressContainer.className = "w-full bg-gray-800 rounded-xl h-4 mt-4 overflow-hidden hidden";
+    const progressBar = document.createElement('div');
+    progressBar.className = "bg-green-500 h-full transition-all duration-300";
+    progressContainer.appendChild(progressBar);
+    document.querySelector('.bg-white\\/5').appendChild(progressContainer);
+  
+    const imageGallery = document.createElement('div');
+    imageGallery.className = "grid grid-cols-2 gap-4 mt-4 hidden";
+    document.querySelector('.bg-white\\/5').appendChild(imageGallery);
+  
+    videoInput.addEventListener('change', () => {
+      const file = videoInput.files[0];
+      if (file) {
+        videoPreview.innerHTML = `<span class='text-green-400'>${file.name}</span>`;
+        uploadButton.disabled = false;
+      }
+    });
+  
+    uploadButton.addEventListener('click', async () => {
+      const file = videoInput.files[0];
+      if (!file) return;
+  
+      uploadButton.disabled = true;
+      uploadButton.textContent = 'Processing...';
+      progressBar.style.width = '0%';
+      progressContainer.classList.remove('hidden');
+      imageGallery.innerHTML = '';
+      imageGallery.classList.add('hidden');
+  
+      const formData = new FormData();
+      formData.append('video', file);
+  
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/upload/', {
+          method: 'POST',
+          body: formData
+        });
+  
+        const data = await response.json();
+  
+        totalFrames.textContent = `🎞️ Total Frames: ${data.total_frames}`;
+        accidentFrames.textContent = `🚧 Accidents Detected At: ${data.accident_detected_frames.join(', ') || 'None'}`;
+        resultContainer.classList.remove('hidden');
+  
+        // Simulate progress bar completion
+        progressBar.style.width = '100%';
+  
+        // Display accident frames
+        if (data.accident_frame_images.length > 0) {
+          data.accident_frame_images.forEach(url => {
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = "Accident Frame";
+            img.className = "rounded-xl shadow-md border border-white";
+            imageGallery.appendChild(img);
+          });
+          imageGallery.classList.remove('hidden');
+        } else {
+          imageGallery.innerHTML = "<p class='text-gray-400 col-span-2'>No accident frames detected.</p>";
+          imageGallery.classList.remove('hidden');
+        }
+  
+      } catch (error) {
+        alert('Upload failed.');
+        console.error(error);
+      } finally {
+        uploadButton.disabled = false;
+        uploadButton.textContent = 'Detect Accident';
+      }
+    });
+  </script>
+  <script>
+  const videoInput = document.getElementById('videoUpload');
+  const uploadButton = document.getElementById('uploadButton');
+  const videoPreview = document.getElementById('videoPreview');
+  const resultContainer = document.getElementById('resultContainer');
+  const totalFrames = document.getElementById('totalFrames');
+  const accidentFrames = document.getElementById('accidentFrames');
+
+  // Create loader container
+  const loaderWrapper = document.createElement('div');
+  loaderWrapper.id = 'loaderWrapper';
+  loaderWrapper.className = 'flex flex-col items-center space-y-2 mt-6 hidden';
+
+  loaderWrapper.innerHTML = `
+    <div class="w-12 h-12 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
+    <p class="text-sm text-blue-400 animate-pulse">Processing video... Please wait</p>
+  `;
+  document.querySelector('.bg-white\\/5').appendChild(loaderWrapper);
+
+  // Create image gallery
+  const imageGallery = document.createElement('div');
+  imageGallery.className = "grid grid-cols-2 gap-4 mt-6 hidden";
+  document.querySelector('.bg-white\\/5').appendChild(imageGallery);
+
+  videoInput.addEventListener('change', () => {
+    const file = videoInput.files[0];
+    if (file) {
+      videoPreview.innerHTML = `<span class='text-green-400'>${file.name}</span>`;
+      uploadButton.disabled = false;
+    }
+  });
+
+  uploadButton.addEventListener('click', async () => {
+    const file = videoInput.files[0];
+    if (!file) return;
+
+    uploadButton.disabled = true;
+    uploadButton.textContent = 'Processing...';
+    loaderWrapper.classList.remove('hidden');
+    imageGallery.innerHTML = '';
+    imageGallery.classList.add('hidden');
+    resultContainer.classList.add('hidden');
+
+    const formData = new FormData();
+    formData.append('video', file);
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/upload/', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+
+      totalFrames.textContent = `🎞️ Total Frames: ${data.total_frames}`;
+      accidentFrames.textContent = `🚧 Accidents Detected At: ${data.accident_detected_frames.join(', ') || 'None'}`;
+      resultContainer.classList.remove('hidden');
+
+      // Display accident frames
+      if (data.accident_frame_images.length > 0) {
+        data.accident_frame_images.forEach(url => {
+          const img = document.createElement('img');
+          img.src = url;
+          img.alt = "Accident Frame";
+          img.className = "rounded-xl shadow-md border border-white";
+          imageGallery.appendChild(img);
+        });
+        imageGallery.classList.remove('hidden');
+      } else {
+        imageGallery.innerHTML = "<p class='text-gray-400 col-span-2'>No accident frames detected.</p>";
+        imageGallery.classList.remove('hidden');
+      }
+
+    } catch (error) {
+      alert('Upload failed.');
+      console.error(error);
+    } finally {
+      uploadButton.disabled = false;
+      uploadButton.textContent = 'Detect Accident';
+      loaderWrapper.classList.add('hidden');
+    }
+  });
+</script>
+
+</body>
+</html> -->
+
+
+<!-- templates/detection/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accident Detection</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-black min-h-screen flex items-center justify-center text-white p-6">
+  <div class="bg-white/5 p-8 rounded-2xl shadow-xl w-full max-w-xl text-center">
+    <h1 class="text-3xl font-bold mb-4">🚨 Accident Detection Upload</h1>
+    <p class="mb-6 text-gray-400">Upload a video to detect accidents using AI</p>
+
+    <label for="videoUpload" class="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-500 rounded-xl cursor-pointer hover:border-white transition">
+      <input id="videoUpload" type="file" accept="video/*" class="hidden">
+      <div id="videoPreview" class="text-gray-400">
+        <svg class="w-10 h-10 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-4m0 0V8m0 4H8m4 0h4M4.75 5.75A2.25 2.25 0 017 3.5h10a2.25 2.25 0 012.25 2.25v13.5A2.25 2.25 0 0117 21.5H7a2.25 2.25 0 01-2.25-2.25V5.75z"></path></svg>
+        <span>Click to upload video</span>
+      </div>
+    </label>
+
+    <button id="uploadButton" disabled class="mt-6 px-6 py-3 bg-blue-600 hover:bg-blue-700 transition rounded-xl text-white font-semibold disabled:opacity-50">Detect Accident</button>
+
+    <div id="resultContainer" class="mt-6 text-left bg-white/10 p-4 rounded-xl hidden">
+      <h2 class="font-semibold text-lg mb-2">📝 Result</h2>
+      <p id="totalFrames"></p>
+      <p id="accidentFrames" class="mt-1"></p>
+    </div>
+
+    <div id="frameGallery" class="grid grid-cols-2 gap-4 mt-4"></div>
+  </div>
+
+  <script>
+    const videoInput = document.getElementById('videoUpload');
+    const uploadButton = document.getElementById('uploadButton');
+    const videoPreview = document.getElementById('videoPreview');
+    const resultContainer = document.getElementById('resultContainer');
+    const totalFrames = document.getElementById('totalFrames');
+    const accidentFrames = document.getElementById('accidentFrames');
+    const imageGallery = document.getElementById('frameGallery');
+
+    let userLocation = null;
+
+    // Get current geolocation
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        const { latitude, longitude } = position.coords;
+        userLocation = `https://www.google.com/maps?q=${latitude},${longitude}`;
+      },
+      error => {
+        alert('Location access denied or unavailable.');
+      }
+    );
+
+    videoInput.addEventListener('change', () => {
+      const file = videoInput.files[0];
+      if (file) {
+        videoPreview.innerHTML = `<span class='text-green-400'>${file.name}</span>`;
+        uploadButton.disabled = false;
+      }
+    });
+
+    uploadButton.addEventListener('click', async () => {
+      const file = videoInput.files[0];
+      if (!file || !userLocation) return alert("Please allow location access and select a file.");
+
+      uploadButton.disabled = true;
+      uploadButton.textContent = 'Processing...';
+      resultContainer.classList.add('hidden');
+      imageGallery.innerHTML = '';
+
+      const formData = new FormData();
+      formData.append('video', file);
+      formData.append('location', userLocation);
+
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/upload/', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+        totalFrames.textContent = `🎞️ Total Frames: ${data.total_frames}`;
+        accidentFrames.textContent = `🚧 Accidents Detected At: ${data.accident_detected_frames.join(', ') || 'None'}`;
+        resultContainer.classList.remove('hidden');
+
+        if (data.accident_frame_images.length > 0) {
+          data.accident_frame_images.forEach(url => {
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = "Accident Frame";
+            img.className = "rounded-xl shadow-md border border-white";
+            imageGallery.appendChild(img);
+          });
+        } else {
+          imageGallery.innerHTML = "<p class='text-gray-400 col-span-2'>No accident frames detected.</p>";
+        }
+
+      } catch (error) {
+        alert('Upload failed.');
+        console.error(error);
+      } finally {
+        uploadButton.disabled = false;
+        uploadButton.textContent = 'Detect Accident';
+      }
+    });
+  </script>
+</body>
+</html>
